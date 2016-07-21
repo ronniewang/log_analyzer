@@ -2,15 +2,26 @@ import re
 import time
 import json
 import os.path
+import datetime
+
+
+def yesterday_str():
+    return (datetime.datetime.now() - datetime.timedelta(days=1)).strftime('%Y-%m-%d')
+
 
 start = time.time()
-
-log_file_path = '/Users/ronniewang/tomcat_kc_web_new_2.2016-07-20.log'
-out_file_path = '/Users/ronniewang/out.log'
+# pwd = '/Users/ronniewang'
+pwd = os.path.dirname(os.path.realpath(__file__))
+log_file_path = pwd + '/tomcat_kc_web_new_2.' + yesterday_str() + '.log'
+out_file_path = pwd + '/out.log'
 if not os.path.isfile(out_file_path):
     out_file = open(out_file_path, 'a+')
+    line_num = 0
     with open(log_file_path) as log_file:
         for line in log_file:
+            line_num += 1
+            if line_num % 100000 == 0:
+                print line_num
             match_obj = re.match(r'^.+\[requestId:(\d+)\]', line)
             if match_obj:
                 match_api_uri = re.match(r'^.+\[(/[0-9a-zA-Z\./]+)[^\]]+\]', line)
@@ -40,10 +51,6 @@ if not os.path.isfile(out_file_path):
                     mills_str = current_request_id, '|api_mills|', match_api_mills.group(1), '\n'
                     out_file.writelines(mills_str)
 
-end = time.time()
-
-print 'time elapsed is ', end - start, 'seconds'
-
 request_map = {}
 api_map = {}
 request_count = 0
@@ -69,3 +76,7 @@ with open(out_file_path) as out_file:
 print json.dumps(request_map, indent=4)
 print(request_count)
 print(json.dumps(api_map, indent=4))
+
+end = time.time()
+
+print 'time elapsed is ', end - start, 'seconds'
