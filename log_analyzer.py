@@ -4,8 +4,15 @@ import time
 import os.path
 import datetime
 import smtplib
+import argparse
 
 STATISTIC_API_CALL_NUM_THRESHOLD = 10
+
+parser = argparse.ArgumentParser()
+parser.add_argument("log_name", help="please provide a log_name to be statistic")
+log_name = parser.parse_args().log_name
+
+print log_name
 
 
 def send(sender, password, receivers=[], message=''):
@@ -45,11 +52,11 @@ def yesterday_str():
 
 
 extract_file_start = time.time()
-# pwd = '/Users/ronniewang'
-pwd = os.path.dirname(os.path.realpath(__file__))
+pwd = '/Users/ronniewang'
+# pwd = os.path.dirname(os.path.realpath(__file__))
 yesterday = yesterday_str()
-log_file_path = pwd + '/tomcat_kc_web_new_2.' + yesterday + '.log'
-out_file_path = pwd + '/simple.log.' + yesterday
+log_file_path = pwd + '/' + log_name + '.' + yesterday + '.log'
+out_file_path = pwd + '/' + log_name + 'simple.log.' + yesterday
 
 if not os.path.isfile(out_file_path):
     out_file = open(out_file_path, 'a+')
@@ -132,4 +139,5 @@ for s in api_statistics:
 print ''.join(message_list)
 
 import config
+
 send(config.sender, config.password, config.receivers, ''.join(message_list))
